@@ -1,0 +1,56 @@
+// 颜色变量
+$primary-color: #8B4513;      // 深棕色 - 以斯帖记主题色
+$secondary-color: #DAA520;    // 金色 - 王室象征
+$accent-color: #DC143C;       // 深红色 - 危险与警告
+$success-color: #28a745;      // 成功绿色
+$warning-color: #ffc107;      // 警告黄色
+$info-color: #17a2b8;         // 信息蓝色
+
+// 文字颜色
+$text-primary: #2c3e50;
+$text-secondary: #6c757d;
+$text-light: #ffffff;
+$text-dark: #343a40;
+
+// 背景颜色
+$bg-primary: #ffffff;
+$bg-secondary: #f8f9fa;
+$bg-dark: #343a40;
+$bg-light: #e9ecef;
+
+// 边框和圆角
+$border-radius: 8px;
+$border-radius-sm: 4px;
+$border-radius-lg: 12px;
+$border-color: #dee2e6;
+
+// 阴影
+$box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+$box-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+$box-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.15);
+
+// 间距
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-xxl: 48px;
+
+// 字体大小
+$font-size-xs: 12px;
+$font-size-sm: 14px;
+$font-size-md: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 20px;
+$font-size-xxl: 24px;
+
+// 移动端断点
+$mobile-breakpoint: 768px;
+$tablet-breakpoint: 1024px;
+
+// Z-index层级
+$z-index-dropdown: 1000;
+$z-index-modal: 1050;
+$z-index-popover: 1060;
+$z-index-tooltip: 1070;

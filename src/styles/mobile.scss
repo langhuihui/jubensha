@@ -1,0 +1,139 @@
+// 移动端专用样式
+@media (max-width: $mobile-breakpoint) {
+  // 容器适配
+  .container {
+    padding: 0 $spacing-sm;
+  }
+
+  // 字体大小适配
+  h1 { font-size: $font-size-xl; }
+  h2 { font-size: $font-size-lg; }
+  h3 { font-size: $font-size-md; }
+
+  // 按钮尺寸适配
+  .btn {
+    min-height: 44px; // iOS 推荐的最小触摸目标
+    padding: $spacing-sm $spacing-md;
+  }
+
+  .btn-sm {
+    min-height: 36px;
+    padding: $spacing-xs $spacing-sm;
+  }
+
+  .btn-lg {
+    min-height: 52px;
+    padding: $spacing-md $spacing-lg;
+  }
+
+  // 表单元素适配
+  input, textarea, select {
+    font-size: 16px; // 防止iOS放大
+    min-height: 44px;
+    padding: $spacing-sm;
+  }
+
+  // 间距适配
+  .section {
+    margin-bottom: $spacing-lg;
+  }
+
+  .card {
+    margin-bottom: $spacing-md;
+    border-radius: $border-radius;
+  }
+
+  // 导航栏适配
+  .navbar {
+    height: 56px;
+    padding: 0 $spacing-sm;
+  }
+
+  .navbar-brand {
+    font-size: $font-size-lg;
+  }
+
+  // 底部导航适配
+  .tabbar {
+    height: 56px;
+  }
+
+  .tabbar-item {
+    font-size: $font-size-xs;
+    padding: $spacing-xs 0;
+  }
+
+  // 对话框适配
+  .modal {
+    width: 90%;
+    margin: $spacing-md;
+    max-height: 80vh;
+  }
+
+  // 列表项适配
+  .list-item {
+    min-height: 48px;
+    padding: $spacing-md;
+  }
+
+  // 游戏界面专用样式
+  .game-container {
+    height: 100vh;
+    height: 100dvh; // 动态视口高度
+    overflow: hidden;
+  }
+
+  .game-header {
+    height: 60px;
+    padding: $spacing-sm;
+  }
+
+  .game-content {
+    height: calc(100vh - 120px);
+    height: calc(100dvh - 120px);
+    overflow-y: auto;
+    padding: $spacing-sm;
+  }
+
+  .game-footer {
+    height: 60px;
+    padding: $spacing-sm;
+  }
+
+  // 角色卡片适配
+  .character-card {
+    width: 100%;
+    margin-bottom: $spacing-md;
+  }
+
+  // 线索卡片适配
+  .clue-card {
+    width: 100%;
+    min-height: 80px;
+    margin-bottom: $spacing-sm;
+  }
+
+  // 投票界面适配
+  .vote-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-sm;
+  }
+
+  .vote-option {
+    min-height: 100px;
+  }
+
+  // 聊天界面适配
+  .chat-container {
+    height: calc(100vh - 120px);
+    height: calc(100dvh - 120px);
+  }
+
+  .chat-messages {
+    height: calc(100% - 60px);
+  }
+
+  .chat-input {
+    height: 60px;
+  }
+}
