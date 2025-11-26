@@ -4,7 +4,7 @@ export const GAME_CONFIG = {
   GAME_NAME: '以斯帖记：王后的勇气',
 
   // 服务器配置
-  SERVER_URL: 'ws://localhost:8080',
+  SERVER_URL: 'ws://localhost:8080/ws',
 
   // 游戏阶段配置
   PHASES: [

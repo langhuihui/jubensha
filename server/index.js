@@ -19,15 +19,19 @@ app.get('/', (req, res) => {
     <h1>以斯帖记剧本杀游戏服务器</h1>
     <p>服务器正在运行...</p>
     <p>WebSocket端口: ${PORT}</p>
-    <p>客户端连接地址: ws://localhost:${PORT}</p>
+    <p>客户端连接地址: ws://localhost:${PORT}/ws</p>
   `)
 })
 
-// 创建WebSocket服务器
-const wss = new WebSocketServer({ port: PORT })
+// 创建HTTP服务器
+const server = app.listen(PORT, () => {
+  console.log(`服务器启动成功！`)
+  console.log(`HTTP服务器运行在: http://localhost:${PORT}`)
+  console.log(`WebSocket服务器运行在: ws://localhost:${PORT}/ws`)
+})
 
-console.log(`服务器启动成功！`)
-console.log(`WebSocket服务器运行在: ws://localhost:${PORT}`)
+// 创建WebSocket服务器
+const wss = new WebSocketServer({ server, path: '/ws' })
 
 // 存储房间和玩家数据
 const rooms = new Map()
