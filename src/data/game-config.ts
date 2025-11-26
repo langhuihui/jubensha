@@ -4,7 +4,12 @@ export const GAME_CONFIG = {
   GAME_NAME: '以斯帖记：王后的勇气',
 
   // 服务器配置
-  SERVER_URL: 'ws://localhost:8080/ws',
+  // 动态获取 WebSocket 地址
+  SERVER_URL: (() => {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    const host = window.location.host
+    return `${protocol}//${host}/ws`
+  })(),
 
   // 游戏阶段配置
   PHASES: [
