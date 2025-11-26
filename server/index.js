@@ -13,14 +13,9 @@ const PORT = 8080
 // 静态文件服务
 app.use(express.static(path.join(__dirname, '../dist')))
 
-// 服务器主页
-app.get('/', (req, res) => {
-  res.send(`
-    <h1>以斯帖记剧本杀游戏服务器</h1>
-    <p>服务器正在运行...</p>
-    <p>WebSocket端口: ${PORT}</p>
-    <p>客户端连接地址: ws://localhost:${PORT}/ws</p>
-  `)
+// 处理所有其他请求，返回 index.html (SPA 支持)
+app.get(/(.*)/, (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'))
 })
 
 // 创建HTTP服务器
