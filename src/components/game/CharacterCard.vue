@@ -59,7 +59,7 @@ interface Props {
   character: Character
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 
 const emit = defineEmits<{
   close: []

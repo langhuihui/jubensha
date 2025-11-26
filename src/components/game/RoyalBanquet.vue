@@ -39,7 +39,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { showToast } from 'vant'
 import type { Character } from '@/types/game'
 
@@ -49,7 +48,7 @@ interface Props {
   clues: any[]
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 
 const emit = defineEmits<{
   presentEvidence: [evidence: string]

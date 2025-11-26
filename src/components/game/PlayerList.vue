@@ -46,7 +46,7 @@ interface Props {
   players: ExtendedPlayer[]
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 
 const emit = defineEmits<{
   close: []

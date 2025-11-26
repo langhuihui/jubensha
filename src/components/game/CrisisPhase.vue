@@ -54,7 +54,7 @@
           <van-button
             v-for="action in availableActions"
             :key="action.id"
-            :type="action.type"
+            :type="action.type as any"
             size="large"
             block
             @click="selectAction(action)"

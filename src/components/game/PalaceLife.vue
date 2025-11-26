@@ -22,7 +22,7 @@
             <p>{{ clue.description }}</p>
           </div>
           <div class="clue-type">
-            <van-tag :type="getClueTypeColor(clue.type)" size="small">
+            <van-tag :type="getClueTypeColor(clue.type) as any" size="medium">
               {{ getClueTypeName(clue.type) }}
             </van-tag>
           </div>
@@ -60,7 +60,7 @@
         <div class="popup-content">
           <div class="clue-detail-content">
             <div class="clue-meta">
-              <van-tag :type="getClueTypeColor(selectedClue.type)">
+              <van-tag :type="getClueTypeColor(selectedClue.type) as any">
                 {{ getClueTypeName(selectedClue.type) }}
               </van-tag>
             </div>
@@ -89,7 +89,7 @@ interface Props {
   discoveredClues: Clue[]
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 
 const emit = defineEmits<{
   discoverClue: [clueId: string]

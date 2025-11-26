@@ -77,7 +77,7 @@ interface Props {
   character: Character | null
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 
 const emit = defineEmits<{
   introConfirmed: []

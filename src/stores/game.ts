@@ -2,8 +2,6 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import GameService, { type GameRoom, type ExtendedPlayer, type ExtendedGameState } from '@/services/game-service'
 import { estherScript } from '@/data/esther-script'
-import { GAME_CONFIG } from '@/data/game-config'
-import type { Character, Clue } from '@/types/game'
 
 export const useGameStore = defineStore('game', () => {
   // 游戏服务实例
@@ -52,7 +50,7 @@ export const useGameStore = defineStore('game', () => {
 
   const myCharacter = computed(() => {
     if (!currentPlayer.value?.characterId) return null
-    return estherScript.characters.find(c => c.id === currentPlayer.value?.characterId)
+    return estherScript.characters.find(c => c.id === currentPlayer.value?.characterId) || null
   })
 
   const availableClues = computed(() => {

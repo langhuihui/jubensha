@@ -42,7 +42,7 @@ interface Props {
   logs: LogEntry[]
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 
 const emit = defineEmits<{
   close: []

@@ -7,18 +7,22 @@ export interface GameRoom extends Room {
   name?: string
   scriptTitle?: string
   hasPassword?: boolean
+  status?: 'waiting' | 'playing' | 'ended'
 }
 
 export interface ExtendedPlayer extends Player {
   avatar?: string
   character?: Character
   isReady?: boolean
+  isAlive?: boolean
 }
 
 export interface ExtendedGameState extends GameState {
   players: ExtendedPlayer[]
   availableClues: Clue[]
   currentPhase?: any
+  winner?: string
+  isEnded?: boolean
   gameLog: Array<{
     timestamp: number
     type: 'system' | 'action' | 'discovery' | 'vote' | 'message'
@@ -84,7 +88,7 @@ class GameService {
       console.log('[GameService] Game state updated:', state)
       this.currentGameState = {
         ...state,
-        players: this.extendPlayers(state.players || []),
+        players: this.extendPlayers((state as any).players || []),
         availableClues: estherScript.clues,
         gameLog: this.currentGameState?.gameLog || []
       }
@@ -134,7 +138,7 @@ class GameService {
   }
 
   // 房间管理方法
-  async createRoom(playerName: string, maxPlayers: number, password?: string): Promise<string> {
+  async createRoom(_playerName: string, maxPlayers: number, password?: string): Promise<string> {
     if (!this.client) {
       throw new Error('Client not initialized')
     }
@@ -293,7 +297,7 @@ class GameService {
   }
 
   // 发送聊天消息
-  async sendMessage(roomId: string, content: string): Promise<void> {
+  async sendMessage(_roomId: string, content: string): Promise<void> {
     // 这里需要实现聊天消息发送
     // SDK可能不包含聊天功能，需要额外实现
     this.addGameLog('message', content)
@@ -317,7 +321,7 @@ class GameService {
 
   // 检查连接状态
   isConnected(): boolean {
-    return this.client !== null && this.client.network.isConnected
+    return this.client !== null && (this.client.network as any).isConnected
   }
 }
 

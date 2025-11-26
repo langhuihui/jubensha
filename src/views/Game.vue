@@ -50,7 +50,7 @@
       <div v-else-if="currentPhase === 'royal_banquet'" class="phase-content">
         <RoyalBanquet
           :character="myCharacter"
-          :players="gameState?.players"
+          :players="gameState?.players || []"
           :clues="myDiscoveredClues"
           @present-evidence="presentEvidence"
         />
@@ -60,8 +60,8 @@
       <div v-else-if="currentPhase === 'final_judgment'" class="phase-content">
         <FinalJudgment
           :character="myCharacter"
-          :players="gameState?.players"
-          :votes="gameState?.votes"
+          :players="gameState?.players || []"
+          :votes="gameState?.votes || {}"
           @vote="castVote"
         />
       </div>
@@ -143,7 +143,6 @@ import GameEnd from '@/components/game/GameEnd.vue'
 import CharacterCard from '@/components/game/CharacterCard.vue'
 import GameLog from '@/components/game/GameLog.vue'
 import PlayerList from '@/components/game/PlayerList.vue'
-import { GAME_CONFIG } from '@/data/game-config'
 
 const router = useRouter()
 const route = useRoute()
@@ -164,6 +163,14 @@ const currentPhaseInfo = computed(() => gameStore.currentPhaseInfo)
 const myCharacter = computed(() => gameStore.myCharacter)
 const gameState = computed(() => gameStore.gameState)
 const isHost = computed(() => gameStore.isHost)
+const availableClues = computed(() => gameStore.gameState?.availableClues || [])
+const myDiscoveredClues = computed(() => {
+  if (!gameStore.gameState || !gameStore.myCharacter) return []
+  // 这里假设 discoveredClues 是 ID 列表，需要映射到 Clue 对象
+  // 实际逻辑可能需要根据 store 的结构调整
+  return gameStore.gameState.availableClues.filter(clue => clue.discovered)
+})
+
 const canAdvancePhase = computed(() => {
   if (!isHost.value || !gameState.value) return false
 
@@ -174,7 +181,7 @@ const canAdvancePhase = computed(() => {
 })
 
 // 检查玩家是否完成当前阶段
-const hasPlayerCompletedPhase = (player: any): boolean => {
+const hasPlayerCompletedPhase = (_player: any): boolean => {
   // 这里可以根据不同阶段实现不同的完成逻辑
   return true // 暂时返回true
 }
@@ -198,7 +205,7 @@ const startPhaseTimer = () => {
   timerInterval = setInterval(() => {
     phaseTimeLeft.value--
     if (phaseTimeLeft.value <= 0) {
-      clearInterval(timerInterval)
+      if (timerInterval) clearInterval(timerInterval)
       if (isHost.value) {
         nextPhase()
       }
@@ -230,7 +237,7 @@ const nextPhase = async () => {
 }
 
 // 做出决定（王后抉择阶段）
-const makeDecision = async (decision: string) => {
+const makeDecision = async (_decision: string) => {
   try {
     // 实现决定逻辑
     showToast('已做出决定')
@@ -242,7 +249,7 @@ const makeDecision = async (decision: string) => {
 }
 
 // 出示证据（御前宴会阶段）
-const presentEvidence = async (evidence: string) => {
+const presentEvidence = async (_evidence: string) => {
   try {
     // 实现出示证据逻辑
     showToast('证据已出示')

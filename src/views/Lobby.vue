@@ -124,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast, showLoadingToast, closeToast } from 'vant'
 
@@ -147,7 +147,7 @@ const loading = ref(false)
 const finished = ref(false)
 const refreshing = ref(false)
 const page = ref(1)
-const pageSize = 10
+// const pageSize = 10
 
 // 快速加入弹窗
 const showQuickJoin = ref(false)

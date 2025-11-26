@@ -44,7 +44,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { showToast } from 'vant'
 import type { Character } from '@/types/game'
 
@@ -53,7 +52,7 @@ interface Props {
   isHost: boolean
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 
 const emit = defineEmits<{
   makeDecision: [decision: string]
