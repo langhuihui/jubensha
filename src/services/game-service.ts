@@ -380,9 +380,9 @@ class GameService {
           (this.client.network.send as any)(message)
           console.log('[GameService] Message sent via network.send')
         }
-        // 方法2: 尝试通过游戏状态发送
-        else if (typeof this.client.game.sendMessage === 'function') {
-          await this.client.game.sendMessage(roomId, content)
+        // 方法2: 尝试通过游戏API发送
+        else if ((this.client.game as any).sendMessage) {
+          await (this.client.game as any).sendMessage(roomId, content)
           console.log('[GameService] Message sent via game.sendMessage')
         }
         // 方法3: 直接通过WebSocket连接发送
