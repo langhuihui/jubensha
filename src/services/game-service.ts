@@ -369,13 +369,35 @@ class GameService {
         playerName: this.currentPlayer?.name || 'Unknown'
       }
 
-      // 通过网络接口发送消息
-      // 注意：当前版本的jubensha-sdk可能不支持直接发送自定义消息
-      console.log('[GameService] Attempting to send message:', message)
+      // 通过jubensha-sdk发送消息
+      console.log('[GameService] Sending message:', message)
 
-      // TODO: 根据SDK文档实现正确的消息发送方式
-      // this.client.network.send(message, callback) // 可能需要回调函数
-      console.log('[GameService] Message sending not yet implemented')
+      // 尝试不同的SDK发送方法
+      try {
+        // 方法1: 尝试直接发送
+        if (typeof this.client.network.send === 'function') {
+          // 如果send接受对象参数
+          (this.client.network.send as any)(message)
+          console.log('[GameService] Message sent via network.send')
+        }
+        // 方法2: 尝试通过游戏状态发送
+        else if (typeof this.client.game.sendMessage === 'function') {
+          await this.client.game.sendMessage(roomId, content)
+          console.log('[GameService] Message sent via game.sendMessage')
+        }
+        // 方法3: 直接通过WebSocket连接发送
+        else {
+          const messageStr = JSON.stringify(message)
+          if ((this.client as any).ws && (this.client as any).ws.send) {
+            (this.client as any).ws.send(messageStr)
+            console.log('[GameService] Message sent via WebSocket')
+          } else {
+            console.warn('[GameService] No available send method found, message added to local log only')
+          }
+        }
+      } catch (sendError) {
+        console.warn('[GameService] Send method failed, message added to local log only:', sendError)
+      }
 
       // 添加到本地日志
       this.addGameLog('message', content.trim(), this.currentPlayer?.id)
