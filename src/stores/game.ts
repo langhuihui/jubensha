@@ -101,24 +101,24 @@ export const useGameStore = defineStore('game', () => {
 
     try {
       error.value = null
-      const roomId = await gameService.value.createRoom(playerName, maxPlayers, password)
+      const result = await gameService.value.createRoom(playerName, maxPlayers, password)
 
-      // 设置当前玩家为房主
+      // 使用服务器返回的玩家信息
       currentPlayer.value = {
-        id: 'host', // 实际应该从服务器获取
-        name: playerName,
+        id: result.player?.id || `player_${Date.now()}`,
+        name: result.player?.name || playerName,
         isHost: true,
         status: 'online',
         characterId: undefined,
         isReady: true,
-        avatar: '/images/avatars/host.jpg'
+        avatar: '/images/avatars/default.svg'
       }
 
       // 更新房间信息
       currentRoom.value = gameService.value.getCurrentRoom()
       gameState.value = gameService.value.getCurrentGameState()
 
-      return roomId
+      return result.roomId
     } catch (err) {
       error.value = err instanceof Error ? err.message : '创建房间失败'
       throw err
@@ -133,17 +133,17 @@ export const useGameStore = defineStore('game', () => {
 
     try {
       error.value = null
-      await gameService.value.joinRoom(roomId, playerName, password)
+      const result = await gameService.value.joinRoom(roomId, playerName, password)
 
-      // 设置当前玩家
+      // 使用服务器返回的玩家信息
       currentPlayer.value = {
-        id: 'player', // 实际应该从服务器获取
-        name: playerName,
+        id: result.player?.id || `player_${Date.now()}`,
+        name: result.player?.name || playerName,
         isHost: false,
         status: 'online',
         characterId: undefined,
         isReady: false,
-        avatar: '/images/avatars/player.jpg'
+        avatar: '/images/avatars/default.svg'
       }
 
       // 更新房间信息

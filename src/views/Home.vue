@@ -146,8 +146,10 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast, showLoadingToast, closeToast } from 'vant'
 import { GAME_CONFIG } from '@/data/game-config'
+import { useGameStore } from '@/stores/game'
 
 const router = useRouter()
+const gameStore = useGameStore()
 
 // 弹窗状态
 const showCreateRoom = ref(false)
@@ -180,21 +182,25 @@ const createRoom = async () => {
   })
 
   try {
-    // TODO: 调用SDK创建房间API
-    // const roomId = await gameClient.room.createRoom(GAME_CONFIG.SCRIPT_ID, roomForm.maxPlayers)
+    // 初始化游戏服务
+    await gameStore.initializeGame()
 
-    // 模拟创建房间
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    const roomId = Math.random().toString(36).substring(2, 8).toUpperCase()
+    // 创建房间
+    const roomId = await gameStore.createRoom(
+      roomForm.playerName,
+      roomForm.maxPlayers,
+      roomForm.password || undefined
+    )
 
     closeToast()
     showCreateRoom.value = false
     showToast('房间创建成功')
 
-    // 跳转到房间页面
+    // 跳转到房间页面，携带玩家名称
     router.push({
       name: 'Room',
-      params: { roomId }
+      params: { roomId },
+      query: { playerName: roomForm.playerName, isHost: 'true' }
     })
   } catch (error) {
     closeToast()
@@ -221,20 +227,25 @@ const joinRoom = async () => {
   })
 
   try {
-    // TODO: 调用SDK加入房间API
-    // await gameClient.room.joinRoom(joinForm.roomId, joinForm.playerName)
+    // 初始化游戏服务
+    await gameStore.initializeGame()
 
-    // 模拟加入房间
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // 加入房间
+    await gameStore.joinRoom(
+      joinForm.roomId,
+      joinForm.playerName,
+      joinForm.password || undefined
+    )
 
     closeToast()
     showJoinRoom.value = false
     showToast('加入房间成功')
 
-    // 跳转到房间页面
+    // 跳转到房间页面，携带玩家名称
     router.push({
       name: 'Room',
-      params: { roomId: joinForm.roomId }
+      params: { roomId: joinForm.roomId },
+      query: { playerName: joinForm.playerName, isHost: 'false' }
     })
   } catch (error) {
     closeToast()

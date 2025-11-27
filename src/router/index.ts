@@ -9,6 +9,11 @@ const routes: Array<RouteRecordRaw> = [
     meta: { title: '以斯帖记剧本杀' }
   },
   {
+    // 兼容直接访问 /index.html 的情况
+    path: '/index.html',
+    redirect: '/'
+  },
+  {
     path: '/lobby',
     name: 'Lobby',
     component: () => import('@/views/Lobby.vue'),

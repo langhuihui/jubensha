@@ -72,7 +72,16 @@ class GameService {
 
     this.client.room.on('roomUpdated', (room: Room) => {
       console.log('[GameService] Room updated:', room)
-      this.currentRoom = { ...room, name: room.id, scriptTitle: estherScript.title }
+      this.currentRoom = {
+        ...this.currentRoom,
+        ...room,
+        name: this.currentRoom?.name || '波斯皇宫',
+        scriptTitle: estherScript.title
+      }
+      // Also update game state players
+      if (this.currentGameState && room.players) {
+        this.currentGameState.players = this.extendPlayers(room.players)
+      }
     })
 
     // 游戏事件
@@ -108,7 +117,7 @@ class GameService {
   private extendPlayers(players: Player[]): ExtendedPlayer[] {
     return players.map(player => ({
       ...player,
-      avatar: `/images/avatars/${player.id}.jpg`,
+      avatar: '/images/avatars/default.svg',
       character: estherScript.characters.find(c => c.id === player.characterId),
       isReady: false // 可以从服务器状态获取
     }))
@@ -138,55 +147,80 @@ class GameService {
   }
 
   // 房间管理方法
-  async createRoom(_playerName: string, maxPlayers: number, password?: string): Promise<string> {
+  async createRoom(playerName: string, maxPlayers: number, password?: string): Promise<{ roomId: string; player: any }> {
     if (!this.client) {
       throw new Error('Client not initialized')
     }
 
     try {
-      const roomId = await this.client.room.createRoom(estherScript.id, maxPlayers)
+      const result = await this.client.room.createRoom(estherScript.id, maxPlayers, playerName)
 
-      // 模拟房间数据（因为SDK可能不支持房间名称和密码）
+      // 使用服务器返回的完整数据
       this.currentRoom = {
-        id: roomId,
+        id: result.roomId,
         name: '波斯皇宫',
         scriptTitle: estherScript.title,
         hasPassword: !!password,
-        maxPlayers,
-        hostId: '', // 需要从服务器获取
-        players: [],
-        scriptId: estherScript.id
+        maxPlayers: result.room?.maxPlayers || maxPlayers,
+        hostId: result.room?.hostId || result.player?.id || '',
+        players: result.room?.players || [],
+        scriptId: estherScript.id,
+        status: (result.room as any)?.status || 'waiting'
       }
 
-      this.addGameLog('system', `房间创建成功: ${roomId}`)
-      return roomId
+      // 初始化游戏状态
+      this.currentGameState = {
+        phase: 'IDLE',
+        round: 1,
+        players: this.extendPlayers(result.room?.players || []),
+        availableClues: estherScript.clues,
+        cluesFound: [],
+        votes: {},
+        gameLog: []
+      }
+
+      this.addGameLog('system', `房间创建成功: ${result.roomId}`)
+      return { roomId: result.roomId, player: result.player }
     } catch (error) {
       console.error('[GameService] Failed to create room:', error)
       throw error
     }
   }
 
-  async joinRoom(roomId: string, playerName: string, password?: string): Promise<void> {
+  async joinRoom(roomId: string, playerName: string, password?: string): Promise<{ room: any; player: any }> {
     if (!this.client) {
       throw new Error('Client not initialized')
     }
 
     try {
-      await this.client.room.joinRoom(roomId, playerName)
+      const result = await this.client.room.joinRoom(roomId, playerName)
 
-      // 模拟房间数据
+      // 使用服务器返回的完整数据
       this.currentRoom = {
         id: roomId,
         name: '波斯皇宫',
         scriptTitle: estherScript.title,
         hasPassword: !!password,
-        maxPlayers: 6,
-        hostId: '1',
-        players: [],
-        scriptId: estherScript.id
+        maxPlayers: result.room?.maxPlayers || 6,
+        hostId: result.room?.hostId || '',
+        players: result.room?.players || [],
+        scriptId: estherScript.id,
+        status: (result.room as any)?.status || 'waiting'
+      }
+
+      // 初始化游戏状态
+      this.currentGameState = {
+        phase: 'IDLE',
+        round: 1,
+        players: this.extendPlayers(result.room?.players || []),
+        availableClues: estherScript.clues,
+        cluesFound: [],
+        votes: {},
+        gameLog: []
       }
 
       this.addGameLog('system', `${playerName} 加入了房间`)
+      return { room: result.room, player: result.player }
     } catch (error) {
       console.error('[GameService] Failed to join room:', error)
       throw error

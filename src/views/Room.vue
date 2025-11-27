@@ -198,10 +198,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { showToast, showLoadingToast, closeToast, showConfirmDialog } from 'vant'
 import { estherScript } from '@/data/esther-script'
+import { useGameStore } from '@/stores/game'
 
 interface Player {
   id: string
@@ -216,7 +217,7 @@ interface Player {
 interface Room {
   id: string
   name: string
-  status: 'waiting' | 'playing'
+  status: 'waiting' | 'playing' | 'ended'
   players: Player[]
   maxPlayers: number
   scriptTitle: string
@@ -235,37 +236,70 @@ interface Message {
 const router = useRouter()
 const route = useRoute()
 const roomId = route.params.roomId as string
+const playerName = route.query.playerName as string || '玩家'
+const isHostQuery = route.query.isHost === 'true'
+const gameStore = useGameStore()
 
 // 房间数据
 const room = ref<Room>({
   id: roomId,
   name: '波斯皇宫',
   status: 'waiting',
-  players: [
-    {
-      id: '1',
-      name: '房主玩家',
-      avatar: '/images/avatars/host.jpg',
-      isHost: true,
-      status: 'online',
-      isReady: true
-    }
-  ],
+  players: [],
   maxPlayers: 6,
   scriptTitle: estherScript.title,
   hasPassword: false,
-  hostId: '1'
+  hostId: ''
 })
 
-// 当前玩家（假设）
+// 当前玩家
 const currentPlayer = ref<Player>({
-  id: '2',
-  name: '当前玩家',
-  avatar: '/images/avatars/current.jpg',
-  isHost: false,
+  id: '',
+  name: playerName,
+  avatar: '/images/avatars/default.svg',
+  isHost: isHostQuery,
   status: 'online',
-  isReady: false
+  isReady: isHostQuery
 })
+
+// 监听游戏状态变化
+watch(() => gameStore.currentRoom, (newRoom) => {
+  if (newRoom) {
+    room.value = {
+      ...room.value,
+      id: newRoom.id,
+      maxPlayers: newRoom.maxPlayers,
+      hostId: newRoom.hostId,
+      status: newRoom.status || 'waiting'
+    }
+    // Also sync players from room if available
+    if (newRoom.players && newRoom.players.length > 0) {
+      room.value.players = newRoom.players.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        avatar: p.avatar || '/images/avatars/default.svg',
+        isHost: p.isHost,
+        status: p.status || 'online',
+        isReady: p.isReady || false,
+        characterId: p.characterId
+      }))
+    }
+  }
+}, { deep: true })
+
+watch(() => gameStore.gameState, (newState) => {
+  if (newState && newState.players) {
+    room.value.players = newState.players.map(p => ({
+      id: p.id,
+      name: p.name,
+      avatar: p.avatar || '/images/avatars/default.svg',
+      isHost: p.isHost,
+      status: p.status || 'online',
+      isReady: p.isReady || false,
+      characterId: p.characterId
+    }))
+  }
+}, { deep: true })
 
 // 聊天消息
 const messages = ref<Message[]>([
@@ -429,16 +463,66 @@ const saveRoomSettings = () => {
   showRoomSettings.value = false
 }
 
-// 模拟其他玩家加入
-onMounted(() => {
-  // 添加当前玩家到房间（如果不是房主）
-  if (currentPlayer.value.id !== room.value.hostId) {
+// 初始化房间
+onMounted(async () => {
+  // 从游戏store获取房间和玩家信息
+  const storeRoom = gameStore.currentRoom
+  const storePlayer = gameStore.currentPlayer
+
+  if (storeRoom) {
+    room.value = {
+      ...room.value,
+      id: storeRoom.id,
+      maxPlayers: storeRoom.maxPlayers,
+      hostId: storeRoom.hostId,
+      status: storeRoom.status || 'waiting'
+    }
+    // Also sync players from store room
+    if (storeRoom.players && storeRoom.players.length > 0) {
+      room.value.players = storeRoom.players.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        avatar: p.avatar || '/images/avatars/default.svg',
+        isHost: p.isHost,
+        status: p.status || 'online',
+        isReady: p.isReady || false,
+        characterId: p.characterId
+      }))
+    }
+  }
+
+  if (storePlayer) {
+    currentPlayer.value = {
+      id: storePlayer.id,
+      name: storePlayer.name,
+      avatar: storePlayer.avatar || '/images/avatars/default.svg',
+      isHost: storePlayer.isHost,
+      status: storePlayer.status || 'online',
+      isReady: storePlayer.isReady || false
+    }
+  }
+
+  // 添加当前玩家到房间玩家列表
+  if (currentPlayer.value.id && !room.value.players.find(p => p.id === currentPlayer.value.id)) {
     room.value.players.push(currentPlayer.value)
+  }
+
+  // 如果没有玩家列表，至少添加当前玩家
+  if (room.value.players.length === 0) {
+    currentPlayer.value.id = currentPlayer.value.id || `player_${Date.now()}`
+    room.value.players.push(currentPlayer.value)
+    if (isHostQuery) {
+      room.value.hostId = currentPlayer.value.id
+    }
   }
 
   // 模拟房间设置
   tempMaxPlayers.value = room.value.maxPlayers
   tempHasPassword.value = room.value.hasPassword
+})
+
+onUnmounted(() => {
+  // 离开房间时可以清理资源
 })
 </script>
 
