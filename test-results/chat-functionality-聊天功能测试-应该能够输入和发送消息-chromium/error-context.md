@@ -1,0 +1,65 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - generic [ref=e6]:
+    - generic [ref=e8] [cursor=pointer]: 
+    - generic [ref=e9]: 游戏房间
+    - button "" [ref=e11] [cursor=pointer]:
+      - generic [ref=e14]: 
+  - generic [ref=e15]:
+    - generic [ref=e16]:
+      - heading "波斯皇宫" [level=2] [ref=e17]
+      - generic [ref=e18]: 等待中
+    - generic [ref=e19]:
+      - paragraph [ref=e20]: "房间号: TEST123"
+      - paragraph [ref=e21]: 以斯帖记：王后的勇气
+  - generic [ref=e22]:
+    - heading "玩家列表 (1/6)" [level=3] [ref=e23]
+    - generic [ref=e24]:
+      - generic [ref=e25]:
+        - img "测试玩家" [ref=e27]
+        - generic [ref=e29]:
+          - paragraph [ref=e30]: 测试玩家
+          - paragraph [ref=e31]: 未分配角色
+      - generic [ref=e33]:
+        - generic [ref=e34]: 
+        - generic [ref=e35]: 等待加入
+      - generic [ref=e37]:
+        - generic [ref=e38]: 
+        - generic [ref=e39]: 等待加入
+      - generic [ref=e41]:
+        - generic [ref=e42]: 
+        - generic [ref=e43]: 等待加入
+      - generic [ref=e45]:
+        - generic [ref=e46]: 
+        - generic [ref=e47]: 等待加入
+      - generic [ref=e49]:
+        - generic [ref=e50]: 
+        - generic [ref=e51]: 等待加入
+  - generic [ref=e52]:
+    - heading "游戏介绍" [level=3] [ref=e53]
+    - generic [ref=e54]:
+      - paragraph [ref=e55]: 这是一个基于圣经以斯帖记的剧本杀故事。波斯帝国时期，犹太少女以斯帖成为王后，面对宰相哈曼的种族灭绝计划，她需要冒着生命危险拯救自己的同胞。
+      - generic [ref=e56]:
+        - generic [ref=e57]:
+          - generic [ref=e58]: 
+          - generic [ref=e59]: 90分钟
+        - generic [ref=e60]:
+          - generic [ref=e61]: 
+          - generic [ref=e62]: 4-6人
+        - generic [ref=e63]:
+          - generic [ref=e64]: 
+          - generic [ref=e65]: 中等
+  - generic [ref=e66]:
+    - heading "房间聊天" [level=3] [ref=e67]
+    - generic [ref=e71]: 欢迎来到游戏房间！
+    - generic [ref=e75]:
+      - textbox "输入消息..." [ref=e76]: 这是一条测试消息
+      - button "发送" [active] [ref=e78] [cursor=pointer]:
+        - generic [ref=e80]: 发送
+  - button " 准备" [ref=e82] [cursor=pointer]:
+    - generic [ref=e84]:
+      - generic [ref=e85]: 
+      - text: 准备
+```

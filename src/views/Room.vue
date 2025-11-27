@@ -237,6 +237,7 @@ interface Room {
   hostId: string
 }
 
+// 定义消息接口以避免TypeScript错误
 interface Message {
   id: string
   playerId: string
@@ -316,13 +317,13 @@ watch(() => gameStore.gameState, (newState) => {
 // 聊天消息 - 从gameStore获取
 const messages = computed(() => {
   // 将gameStore的gameLog转换为Message格式
-  const gameLogMessages = gameStore.gameLog
+  const gameLogMessages = (gameStore.gameState?.gameLog || [])
     .filter((log: any) => log.type === 'message')
     .map((log: any) => ({
       id: log.timestamp.toString(),
       playerId: log.playerId || 'unknown',
-      playerName: log.content.split(':')[0] || '未知玩家',
-      content: log.content.split(':').slice(1).join(':') || log.content,
+      playerName: log.playerName || log.content?.split(':')[0] || '未知玩家',
+      content: log.content || '',
       timestamp: log.timestamp
     }))
 
@@ -336,7 +337,7 @@ const messages = computed(() => {
       timestamp: Date.now() - 60000
     },
     ...gameLogMessages
-  ]
+  ] as Message[]
 })
 
 const messageText = ref('')
