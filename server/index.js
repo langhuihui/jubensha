@@ -30,6 +30,9 @@ const gameServer = new JubenshaServer({ server, path: '/ws' })
 
 console.log('WebSocket服务器初始化完成')
 
+// 存储房间信息
+const rooms = new Map()
+
 // 尝试添加事件监听器（如果SDK支持）
 if (typeof gameServer.on === 'function') {
   gameServer.on('connection', (client) => {
@@ -42,6 +45,26 @@ if (typeof gameServer.on === 'function') {
 
   gameServer.on('message', (client, message) => {
     console.log(`收到消息 [${message.type}]:`, message)
+
+    // 处理聊天消息
+    if (message.type === 'chat:message') {
+      console.log(`聊天消息: [${message.playerName}] ${message.content}`)
+
+      // 广播消息给房间内的所有玩家
+      const roomId = message.roomId
+      if (gameServer.wss) {
+        gameServer.wss.clients.forEach((ws) => {
+          if (ws.readyState === ws.OPEN) {
+            // 简单广播，实际应用中可以根据roomId过滤
+            ws.send(JSON.stringify({
+              type: 'chat:message',
+              ...message,
+              timestamp: Date.now()
+            }))
+          }
+        })
+      }
+    }
   })
 
   gameServer.on('room:create', (data, client) => {
@@ -51,14 +74,51 @@ if (typeof gameServer.on === 'function') {
   gameServer.on('room:join', (data, client) => {
     console.log('加入房间请求:', data)
   })
-
-  gameServer.on('chat:message', (data, client) => {
-    console.log('聊天消息:', data)
-  })
 } else {
   console.log('当前版本的jubensha-sdk不支持事件监听器')
   console.log('gameServer实例:', typeof gameServer)
   console.log('可用方法:', Object.getOwnPropertyNames(gameServer))
+
+  // 如果SDK不支持事件监听器，直接使用WebSocket
+  server.on('upgrade', (request, socket, head) => {
+    console.log('WebSocket升级请求')
+  })
+
+  // 添加自定义消息处理
+  if (gameServer.wss) {
+    gameServer.wss.on('connection', (ws, request) => {
+      console.log('New WebSocket connection established')
+
+      ws.on('message', (data) => {
+        try {
+          const message = JSON.parse(data.toString())
+          console.log('收到消息:', message)
+
+          // 处理聊天消息
+          if (message.type === 'chat:message') {
+            console.log(`聊天消息: [${message.playerName}] ${message.content}`)
+
+            // 广播消息给房间内的所有玩家
+            gameServer.wss.clients.forEach((client) => {
+              if (client !== ws && client.readyState === client.OPEN) {
+                client.send(JSON.stringify({
+                  type: 'chat:message',
+                  ...message,
+                  timestamp: Date.now()
+                }))
+              }
+            })
+          }
+        } catch (error) {
+          console.log('Unknown message type:', data.toString())
+        }
+      })
+
+      ws.on('close', () => {
+        console.log('WebSocket connection closed')
+      })
+    })
+  }
 }
 
 // 优雅关闭
