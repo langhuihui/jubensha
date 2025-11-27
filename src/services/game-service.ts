@@ -35,6 +35,7 @@ class GameService {
   private client: JubenshaClient | null = null
   private currentRoom: GameRoom | null = null
   private currentGameState: ExtendedGameState | null = null
+  private currentPlayer: any | null = null
 
   // 初始化客户端
   async initialize(serverUrl?: string): Promise<void> {
@@ -108,6 +109,17 @@ class GameService {
       console.log('[GameService] Network disconnected')
     })
 
+    // 聊天消息监听
+    this.client.network.on('message', (message: any) => {
+      console.log('[GameService] Received message:', message)
+
+      if (message.type === 'chat:message') {
+        console.log('[GameService] Chat message received:', message)
+        // 将聊天消息添加到游戏日志（使用message类型）
+        this.addGameLog('message', `${message.playerName}: ${message.content}`)
+      }
+    })
+
     this.client.network.on('error', (error: Error) => {
       console.error('[GameService] Network error:', error)
     })
@@ -155,6 +167,9 @@ class GameService {
     try {
       const result = await this.client.room.createRoom(estherScript.id, maxPlayers, playerName)
 
+      // 设置当前玩家
+      this.currentPlayer = result.player
+
       // 使用服务器返回的完整数据
       this.currentRoom = {
         id: result.roomId,
@@ -194,6 +209,9 @@ class GameService {
 
     try {
       const result = await this.client.room.joinRoom(roomId, playerName)
+
+      // 设置当前玩家
+      this.currentPlayer = result.player
 
       // 使用服务器返回的完整数据
       this.currentRoom = {
@@ -331,10 +349,40 @@ class GameService {
   }
 
   // 发送聊天消息
-  async sendMessage(_roomId: string, content: string): Promise<void> {
-    // 这里需要实现聊天消息发送
-    // SDK可能不包含聊天功能，需要额外实现
-    this.addGameLog('message', content)
+  async sendMessage(roomId: string, content: string): Promise<void> {
+    if (!this.client) {
+      throw new Error('Client not initialized')
+    }
+
+    if (!content.trim()) {
+      return
+    }
+
+    try {
+      // 直接通过WebSocket发送消息
+      const message = {
+        type: 'chat:message',
+        roomId,
+        content: content.trim(),
+        timestamp: Date.now(),
+        playerId: this.currentPlayer?.id || 'unknown',
+        playerName: this.currentPlayer?.name || 'Unknown'
+      }
+
+      // 通过网络接口发送消息
+      // 注意：当前版本的jubensha-sdk可能不支持直接发送自定义消息
+      console.log('[GameService] Attempting to send message:', message)
+
+      // TODO: 根据SDK文档实现正确的消息发送方式
+      // this.client.network.send(message, callback) // 可能需要回调函数
+      console.log('[GameService] Message sending not yet implemented')
+
+      // 添加到本地日志
+      this.addGameLog('message', content.trim(), this.currentPlayer?.id)
+    } catch (error) {
+      console.error('[GameService] Failed to send message:', error)
+      throw error
+    }
   }
 
   // 投票

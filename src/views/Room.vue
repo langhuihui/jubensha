@@ -373,25 +373,24 @@ const formatTime = (timestamp: number) => {
 const sendMessage = async () => {
   if (!messageText.value.trim()) return
 
-  const newMessage: Message = {
-    id: Date.now().toString(),
-    playerId: currentPlayer.value.id,
-    playerName: currentPlayer.value.name,
-    content: messageText.value.trim(),
-    timestamp: Date.now()
+  const content = messageText.value.trim()
+
+  try {
+    // 发送消息到服务器（gameStore.sendMessage会自动处理roomId）
+    await gameStore.sendMessage(content)
+
+    // 清空输入框
+    messageText.value = ''
+
+    // 滚动到底部
+    await nextTick()
+    if (chatMessagesRef.value) {
+      chatMessagesRef.value.scrollTop = chatMessagesRef.value.scrollHeight
+    }
+  } catch (error) {
+    console.error('发送消息失败:', error)
+    showToast('消息发送失败')
   }
-
-  messages.value.push(newMessage)
-  messageText.value = ''
-
-  // 滚动到底部
-  await nextTick()
-  if (chatMessagesRef.value) {
-    chatMessagesRef.value.scrollTop = chatMessagesRef.value.scrollHeight
-  }
-
-  // TODO: 发送消息到服务器
-  // await gameClient.chat.sendMessage(roomId, newMessage.content)
 }
 
 const leaveRoom = async () => {
