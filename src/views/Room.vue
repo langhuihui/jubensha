@@ -313,16 +313,31 @@ watch(() => gameStore.gameState, (newState) => {
   }
 }, { deep: true })
 
-// 聊天消息
-const messages = ref<Message[]>([
-  {
-    id: '1',
-    playerId: 'system',
-    playerName: '系统',
-    content: '欢迎来到游戏房间！',
-    timestamp: Date.now() - 60000
-  }
-])
+// 聊天消息 - 从gameStore获取
+const messages = computed(() => {
+  // 将gameStore的gameLog转换为Message格式
+  const gameLogMessages = gameStore.gameLog
+    .filter((log: any) => log.type === 'message')
+    .map((log: any) => ({
+      id: log.timestamp.toString(),
+      playerId: log.playerId || 'unknown',
+      playerName: log.content.split(':')[0] || '未知玩家',
+      content: log.content.split(':').slice(1).join(':') || log.content,
+      timestamp: log.timestamp
+    }))
+
+  // 添加系统欢迎消息
+  return [
+    {
+      id: 'welcome',
+      playerId: 'system',
+      playerName: '系统',
+      content: '欢迎来到游戏房间！',
+      timestamp: Date.now() - 60000
+    },
+    ...gameLogMessages
+  ]
+})
 
 const messageText = ref('')
 const chatMessagesRef = ref<HTMLElement>()

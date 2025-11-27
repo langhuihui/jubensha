@@ -98,14 +98,24 @@ if (typeof gameServer.on === 'function') {
           if (message.type === 'chat:message') {
             console.log(`聊天消息: [${message.playerName}] ${message.content}`)
 
-            // 广播消息给房间内的所有玩家
+            // 创建广播消息（添加时间戳）
+            const broadcastMessage = {
+              type: 'chat:message',
+              ...message,
+              timestamp: Date.now()
+            }
+
+            console.log(`广播消息给 ${gameServer.wss.clients.size} 个客户端`)
+
+            // 广播消息给房间内的所有玩家（包括发送者）
             gameServer.wss.clients.forEach((client) => {
-              if (client !== ws && client.readyState === client.OPEN) {
-                client.send(JSON.stringify({
-                  type: 'chat:message',
-                  ...message,
-                  timestamp: Date.now()
-                }))
+              if (client.readyState === client.OPEN) {
+                try {
+                  client.send(JSON.stringify(broadcastMessage))
+                  console.log(`消息已发送给客户端`)
+                } catch (error) {
+                  console.error(`发送消息给客户端失败:`, error)
+                }
               }
             })
           }
