@@ -194,6 +194,18 @@
         </div>
       </div>
     </van-popup>
+
+    <!-- 准备对话框 -->
+    <van-dialog
+      v-model:show="showReadyDialog"
+      :title="isReady ? '取消准备' : '准备游戏'"
+      show-cancel-button
+      @confirm="toggleReady"
+    >
+      <div class="ready-dialog-content">
+        <p>{{ isReady ? '确定要取消准备吗？' : '确定要准备游戏吗？' }}</p>
+      </div>
+    </van-dialog>
   </div>
 </template>
 
@@ -461,6 +473,18 @@ const saveRoomSettings = () => {
 
   showToast('设置保存成功')
   showRoomSettings.value = false
+}
+
+const toggleReady = () => {
+  currentPlayer.value.isReady = !currentPlayer.value.isReady
+
+  // 更新房间玩家列表中的准备状态
+  const playerIndex = room.value.players.findIndex(p => p.id === currentPlayer.value.id)
+  if (playerIndex !== -1) {
+    room.value.players[playerIndex].isReady = currentPlayer.value.isReady
+  }
+
+  showToast(currentPlayer.value.isReady ? '已准备' : '已取消准备')
 }
 
 // 初始化房间
@@ -808,6 +832,17 @@ onUnmounted(() => {
 
   .form-actions {
     margin-top: $spacing-xl;
+  }
+}
+
+.ready-dialog-content {
+  padding: $spacing-lg;
+  text-align: center;
+
+  p {
+    font-size: $font-size-md;
+    color: $text-primary;
+    margin: 0;
   }
 }
 </style>

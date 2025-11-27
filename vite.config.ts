@@ -23,11 +23,9 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
-    proxy: {
-      '/ws': {
-        target: 'ws://localhost:8080',
-        ws: true
-      }
+    cors: true,
+    hmr: {
+      port: 3001
     }
   },
   build: {
@@ -45,7 +43,14 @@ export default defineConfig({
       }
     }
   },
-  base: './',
+  base: process.env.NODE_ENV === 'production' ? '/' : './',
+  define: {
+    __WS_URL__: JSON.stringify(
+      process.env.NODE_ENV === 'production'
+        ? `ws://${process.env.VITE_API_HOST || 'localhost'}:${process.env.VITE_API_PORT || 8080}/ws`
+        : `ws://localhost:${process.env.VITE_API_PORT || 8080}/ws`
+    )
+  },
   css: {
     preprocessorOptions: {
       scss: {

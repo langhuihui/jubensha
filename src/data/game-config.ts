@@ -8,6 +8,7 @@ export const GAME_CONFIG = {
   SERVER_URL: (() => {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
     const host = window.location.host
+    // 直接使用当前页面的host和port，因为Docker会将8080映射到4000端口
     return `${protocol}//${host}/ws`
   })(),
 

@@ -20,7 +20,7 @@
   "dependencies": {
     "eventemitter3": "^5.0.1",
     "express": "^5.1.0",
-    "jubensha-sdk": "0.1.4",
+    "jubensha-sdk": "0.1.6",
     "pinia": "^2.1.7",
     "vant": "^4.8.6",
     "vue": "^3.4.0",

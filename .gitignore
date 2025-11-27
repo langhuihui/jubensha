@@ -37,3 +37,4 @@ dist-ssr
 coverage
 .history
 playwright-report
+tsconfig.tsbuildinfo
