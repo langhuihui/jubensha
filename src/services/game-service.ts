@@ -208,29 +208,39 @@ class GameService {
     }
 
     try {
+      console.log('[GameService] Attempting to join room:', roomId, 'as player:', playerName)
       const result = await this.client.room.joinRoom(roomId, playerName)
+      console.log('[GameService] Join room result:', result)
 
       // 设置当前玩家
-      this.currentPlayer = result.player
+      this.currentPlayer = result.player || { id: `player_${Date.now()}`, name: playerName }
 
-      // 使用服务器返回的完整数据
+      // 使用服务器返回的完整数据，提供默认值
+      const roomData = result.room || {
+        id: roomId,
+        maxPlayers: 6,
+        hostId: '',
+        players: [],
+        status: 'waiting'
+      }
+
       this.currentRoom = {
         id: roomId,
         name: '波斯皇宫',
         scriptTitle: estherScript.title,
         hasPassword: !!password,
-        maxPlayers: result.room?.maxPlayers || 6,
-        hostId: result.room?.hostId || '',
-        players: result.room?.players || [],
+        maxPlayers: roomData.maxPlayers || 6,
+        hostId: roomData.hostId || '',
+        players: roomData.players || [],
         scriptId: estherScript.id,
-        status: (result.room as any)?.status || 'waiting'
+        status: (roomData as any).status || 'waiting'
       }
 
       // 初始化游戏状态
       this.currentGameState = {
         phase: 'IDLE',
         round: 1,
-        players: this.extendPlayers(result.room?.players || []),
+        players: this.extendPlayers(roomData.players || []),
         availableClues: estherScript.clues,
         cluesFound: [],
         votes: {},
@@ -238,7 +248,12 @@ class GameService {
       }
 
       this.addGameLog('system', `${playerName} 加入了房间`)
-      return { room: result.room, player: result.player }
+
+      // 返回完整的房间和玩家信息
+      return {
+        room: roomData,
+        player: this.currentPlayer
+      }
     } catch (error) {
       console.error('[GameService] Failed to join room:', error)
       throw error
